@@ -41,9 +41,9 @@ fa	|		|	default beat (placeholder for later revisions)	|
 
 Number (hex) instance | Description | Example Description | Hex mask|
 | ---------| --------| ---------| -------|
-0|Comment/GOTOs  this instance is used to find beginning/ending of sections.| CTRL+F " 0 "  will find different 0-comments. You will also be able to do comments like  " B33F0 "  " ABBA0" , to name sections you could do "AB0" to begin section A and "AE0" to end section A.  Similar to MIPS, these labels are also used for GOTOs, only loop once per call, and ending with "00"  so "AB00" may go to "AB0" once. two times would be "AB00 AB00". This is needed to match sheet music such as D.C. al CAPA. |0x000001
-1|Sharp/Flat/Natural/Step up/down modifier. This instance sets the sharp for the next note.|"1 C" or 11 C " would be C sharp, "21 B" would be B natural " f1 C" would be C flat  See Sharp Step Modifier for more information.|0x000001
-2|Dynamics Modifier. Volume of notes. This instance sets the following notes to mezzo forte. |"12" sets the notes to f (forte), " 2 " sets the following notes to mf . For more information on the range and ways to add crescendos and descendos, see Dynamics Modifier|0x000001
+0|Keynotes(00)Comment(10)/GOTOs(20)/Measure Markers(30)  this instance is used to find beginning/ending of sections.|  For keynotes (1-88 notes from the keyboard), you will need to add a 00, so 14FF00 will play a dotted 16th note, keynote 255 %106.  You will also be able to do comments like  " B33F10 "  " ABBA10" , to name sections you could do "AB10" to begin section A and "AE20" to end section A.  Similar to MIPS, these labels are also used for GOTOs, only loop once per call, and ending with "20"  so "AB20" may go to "AB10" once. two times would be "AB20 AB20". This is needed to match sheet music such as D.C. al CAPA. Also Measure Markers (30) are used for placing staves on the staff. FF30 would be measure marker 255 and it would show up as a bar on the staff with 255 above it. |0x0000FF 
+1|Sharp/Flat/Natural/Step up/down modifier. This instance sets the sharp or step for the next note.|"01C" or 11C " would be C sharp, "21 B" would be B natural " f1 C" would be C flat  See Sharp Step Modifier for more information.|0x000001
+2|Dynamics Modifier. Volume of notes. This instance sets the following notes to mezzo forte. |"102" sets the notes to f (forte), " 2 " sets the following notes to mf . For more information on the range and ways to add crescendos and descendos, see Dynamics Modifier|0x000001
 3|Accents Modifier tied, staccato, largo, slide, tremolo. This instance sets the tied default continue notes count (default 2)|(todo)|0x000001
 4|Default Setter (beats, key, chord, continueNotes)  This instance sets the key to C, default beat to quarter note, chord to III , and continue notes to 2|Generally requires all the bits. " F3A34 "  (from left to right) would set the continue notes (notes to continue a modifier on for dynamics and volume) to F (15) , III to chord, A to key, 2^3 = 8 for 8th note default note. For more examples see Default Modifier. |0x000001
 5|Parens Modifier begin/end (for chords, arpeggios, etc) This instance starts a paren "("|"05" or "5" is "(" a parens start, "15" is a parens end ")",  on the end parens, you want to express what the parens is for. By default it is for a chord. For more information, see the Parens Modifier  This requires at least 1 byte unless limiting the user to just 1 open paren at a time, which seems silly. |0x000001
@@ -121,5 +121,11 @@ Number (hex) instance | Description | Example Description | Hex mask|
 00010a|Beat extender||
 00100a|Open number for input||
 01000a|local sharp/flat /step modifier||
-10000a|octave 1-15||
+10000a|octave 1-15, 0 is default octave.||
+
+# keynotes : 1-106 
+Number (hex) instance | Description | Example Description | Hex mask|
+| ---------| --------| ---------| -------|
+|00FFa0| Play 255 keynote %106, a0 indicates a comment keynote| 0010a0 would be keynote 16, 1410a0 would be a dotted 2^4=16th note with a keynote of 16.| 00FFa0
+
 
