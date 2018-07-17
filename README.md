@@ -124,6 +124,11 @@ Number (hex) instance | Description | Example Description | Hex mask|
 10000a|octave 1-15, 0 is default octave.||
 
 # keynotes : 1-106 
+A keynote is a key played on a keyboard. The standard octaves are 1-88 (octaves 1-7)
+More information is available here: 
+https://en.wikipedia.org/wiki/Piano_key_frequencies 
+Octaves are split on C
+
 Number (hex) instance | Description | Example Description | Hex mask|
 | ---------| --------| ---------| -------|
 |00FFa0| Play 255 keynote %106, a0 indicates a comment keynote| 0010a0 would be keynote 16, 1410a0 would be a dotted 2^4=16th note with a keynote of 16.| 00FFa0
