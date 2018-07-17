@@ -46,75 +46,85 @@ class SynthPad {
         event.preventDefault();
       }, false);
     
-      myCanvas.addEventListener('mousedown', this.playChromaticScale(300));
+      myCanvas.addEventListener('mousedown', this.playChromaticScale(400));
       myCanvas.addEventListener('touchstart', this.playSound);
     
-      myCanvas.addEventListener('mouseup', this.stopSound);
-      document.addEventListener('mouseleave', this.stopSound);
-      myCanvas.addEventListener('touchend', this.stopSound);
+     // myCanvas.addEventListener('mouseup', this.stopSound);
+      //document.addEventListener('mouseleave', this.stopSound);
+      //myCanvas.addEventListener('touchend', this.stopSound);
     };
     
     
     // Play a note.
-    playSound (){
+
+async playSoundMs (ms){
     
       //this.updateFrequency(event);
-      oscillator.type = 'triangle';
+      //oscillator = myAudioContext.createOscillator();
+      oscillator.type = 'sine';
       //gainNode = myAudioContext.createGain();
       //oscillator = myAudioContext.createOscillator();
-      gainNode.connect(myAudioContext.destination);
-      oscillator.connect(gainNode);
-      if(!playedOnce){
-        oscillator.start(0);
-        playedOnce = true;
-      }
+      
+      //gainNode.connect(myAudioContext.destination);
+     // oscillator.connect(gainNode);
+     // if(!playedOnce){
+      //  oscillator.start();
+      //  playedOnce = true;
+     // }
+     //this.stopSound(300)
+     
+     
+      
      
       //oscillators.push(oscillator);
        //console.log("Played sound once... trying to connect");
        // gainNode.connect(myAudioContext.destination);
        // oscillator.connect(gainNode);
        //console.log("Played sound once... trying to connectssss");
-       myCanvas.addEventListener('mousemove', this.updateFrequency);
-       myCanvas.addEventListener('touchmove', this.updateFrequency);
+       //myCanvas.addEventListener('mousemove', this.updateFrequency);
+       //myCanvas.addEventListener('touchmove', this.updateFrequency);
    //}
     
      
     
       //myCanvas.addEventListener('mouseout', this.stopSound);
     };
-
     
     
     // Stop the audio.
-   stopSound () {
+  async stopSound (t1) {
       //oscillator.stop(0);
      
       try{
-      gainNode.disconnect(myAudioContext.destination)
-      oscillator.disconnect(gainNode);
-      myCanvas.removeEventListener('mousemove', this.updateFrequency);
-      myCanvas.removeEventListener('touchmove', this.updateFrequency);
+      
+      //gainNode.disconnect(myAudioContext.destination)
+      //oscillator.disconnect(gainNode);
+      // oscillator.stop(myAudioContext.currentTime+t1);
       }catch(error){
         console.log("could not disconnect");
       }
      
-      //myCanvas.removeEventListener('mouseout', this.stopSound);
-    };
-     sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-   async playChromaticScale(MSPerNote){
+      myCanvas.removeEventListener('mouseout', this.stopSound);
+  };
+     
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+    
+  async playChromaticScale(MSPerNote){
       
-     this.playBasicHexNote([0xa,0xb,0xc,0xd,0xc,0xb,0xa],MSPerNote)
-      // for(let keyNumber = 33; keyNumber < 77 ; keyNumber++){
-      //  await this.sleep(MSPerNote);  
-      //  this.playNote(keyNumber,MSPerNote, false);
-      //   console.log("playing note")
-      
-        
-      // }
-      
-   
+     //this.playBasicHexNote([0xa,0xb,0xc,0xd,0xc,0xb,0xa],MSPerNote)
+       for(let keyNumber = 22; keyNumber < 60 ; keyNumber+=1){
+        this.playNote(keyNumber,MSPerNote, true);
+        console.log("playing note")
+        await this.sleep(MSPerNote);  
+        //this.stopSound(300);
+       }
+       //this.stopSound(300);
+      //http://arcturo.github.io/library/coffeescript/01_introduction.html
+      //https://github.com/zacharydenton/scissor/tree/master/js
+      //https://noisehack.com/how-to-build-supersaw-synth-web-audio-api/
+      //http://autotelicum.github.io/Smooth-CoffeeScript/interactive/interactive-coffeescript.html#getting-started
       return ;
    } 
    async playBasicHexNote(hexArray,MSPerNote){
@@ -125,37 +135,57 @@ class SynthPad {
       await this.sleep(MSPerNote); 
       var hexNumber = hexArray[i]; 
       var keyNumber = this.noteNameToKeyNumber(this.basicHexToChar(hexNumber),2,0,0)
-      this.playNote(keyNumber,MSPerNote, false);
+      this.playNote(keyNumber,MSPerNote, true);
        console.log("playing note")
      
        
      }
    }
-   playNote(keyNumber, lengthinMS, hardStop){
+   async playNote(keyNumber, lengthinMS, hardStop){
       var noteValue = this.keyNumberToFrequency(keyNumber);
       console.log(noteValue);
       var volumeValue = 50;
+      
+      var context = myAudioContext
+      
+      gainNode = myAudioContext.createGain();
+      //oscillator = myAudioContext.createOscillator();
+      
+      //gainNode.connect(myAudioContext.destination);
+     
+      oscillator = context.createOscillator();
       oscillator.frequency.value = noteValue;
-      gainNode.gain.value = 50;
-      this.playSound();
-      var stopper = this.stopSound;
-      var wait = new Promise(resolve => {
-        setTimeout(() => {
-          console.log("in timeout")
-          if(hardStop){  
-            stopper();
-          }
-          else{
-            gainNode.gain.value = 0;
-          }
-          return;
-        }, lengthinMS);
-      });
+      oscillator.connect(gainNode);
+      gainNode.connect(context.destination);
+      oscillator.connect(context.destination);
+      var currentTime = context.currentTime;
+      //gainNode.gain.value = 40;
+      oscillator.start(currentTime);
+      oscillator.stop(currentTime + (lengthinMS/1000) );
+      
+     
+      //gainNode.gain.value = 0;
+     // await this.sleep(25);
+     
+      //this.playSoundMs(lengthinMS);
+     // var stopper = this.stopSound;
+      //var wait = new Promise(resolve => {
+       // setTimeout(() => {
+        //  console.log("in timeout")
+        //  if(hardStop){  
+        ///    stopper();
+         // }
+        //  else{
+        //    gainNode.gain.value = 0;
+         // }
+         // return;
+       // }, lengthinMS);
+     // });
   
       var frequency =  Math.floor(noteValue*100)/100;
       frequencyLabel.innerHTML = frequency + ' Hz';
       volumeLabel.innerHTML = this.frequencyToNoteName(frequency, false);
-      return wait;
+      
     }
   
 frequencyToNoteName(input, hasCents){
@@ -309,8 +339,8 @@ frequencyToNoteName(input, hasCents){
     var sharps = 0;
     var flats = 0 ;
     var octave = 0;
-    var myNote = ''
-    var char = ''
+    var myNote = '';
+    var char = '';
     for(let i =0 ; i < note.length; i++){
       char = note[i];
       if(char == '#'){
@@ -332,7 +362,7 @@ frequencyToNoteName(input, hasCents){
 
     }
     console.log(myNote +":"+ octave+","+ sharps+","+ flats);
-    return this.noteNameToKeyNumber(myNote,octave,sharps,flats)
+    return this.noteNameToKeyNumber(myNote,octave,sharps,flats);
 
    }
    isNote(note){
