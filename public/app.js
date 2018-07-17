@@ -8,184 +8,123 @@ var  oscillator = myAudioContext.createOscillator();
 var gainNode = myAudioContext.createGain();
 var oscillators = [];
 var playedOnce = false;
+var gainVolume = 60;
 class SynthPad {
   
   constructor() {
    
   
-        // Notes
-        this.lowNote = 261.63; // C4
-        this.highNote = 493.88; // B4
-    console.log(document)
-    //frequencyLabel = document.getElementById('frequency');
-    //myCanvas = document.getElementById('synth-pad');
-
+   this.setupEventListeners();
   
-    // Create an audio context.
-   
-    this.setupEventListeners();
-  
-  
+   myCanvas.addEventListener('mousedown', this.playMain(400));
 
   };
-    // Variables
-   
-    
-   
-  
-  
-    // Constructor
-    
-    
-    
+
     // Event Listeners
      setupEventListeners() {
     
       // Disables scrolling on touch devices.
-      document.body.addEventListener('touchmove', function(event) {
-        event.preventDefault();
-      }, false);
+      // document.body.addEventListener('touchmove', function(event) {
+      //   event.preventDefault();
+      // }, false);
     
-      myCanvas.addEventListener('mousedown', this.playChromaticScale(400));
-      myCanvas.addEventListener('touchstart', this.playSound);
+     
+     
     
-     // myCanvas.addEventListener('mouseup', this.stopSound);
-      //document.addEventListener('mouseleave', this.stopSound);
-      //myCanvas.addEventListener('touchend', this.stopSound);
     };
     
     
-    // Play a note.
 
-async playSoundMs (ms){
+
     
-      //this.updateFrequency(event);
-      //oscillator = myAudioContext.createOscillator();
-      oscillator.type = 'sine';
-      //gainNode = myAudioContext.createGain();
-      //oscillator = myAudioContext.createOscillator();
-      
-      //gainNode.connect(myAudioContext.destination);
-     // oscillator.connect(gainNode);
-     // if(!playedOnce){
-      //  oscillator.start();
-      //  playedOnce = true;
-     // }
-     //this.stopSound(300)
-     
-     
-      
-     
-      //oscillators.push(oscillator);
-       //console.log("Played sound once... trying to connect");
-       // gainNode.connect(myAudioContext.destination);
-       // oscillator.connect(gainNode);
-       //console.log("Played sound once... trying to connectssss");
-       //myCanvas.addEventListener('mousemove', this.updateFrequency);
-       //myCanvas.addEventListener('touchmove', this.updateFrequency);
-   //}
-    
-     
-    
-      //myCanvas.addEventListener('mouseout', this.stopSound);
-    };
-    
-    
-    // Stop the audio.
-  async stopSound (t1) {
-      //oscillator.stop(0);
-     
-      try{
-      
-      //gainNode.disconnect(myAudioContext.destination)
-      //oscillator.disconnect(gainNode);
-      // oscillator.stop(myAudioContext.currentTime+t1);
-      }catch(error){
-        console.log("could not disconnect");
-      }
-     
-      myCanvas.removeEventListener('mouseout', this.stopSound);
-  };
-     
+  
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
     
-  async playChromaticScale(MSPerNote){
-      
-     //this.playBasicHexNote([0xa,0xb,0xc,0xd,0xc,0xb,0xa],MSPerNote)
-       for(let keyNumber = 22; keyNumber < 60 ; keyNumber+=1){
-        this.playNote(keyNumber,MSPerNote, true);
-        console.log("playing note")
-        await this.sleep(MSPerNote);  
-        //this.stopSound(300);
-       }
-       //this.stopSound(300);
-      //http://arcturo.github.io/library/coffeescript/01_introduction.html
-      //https://github.com/zacharydenton/scissor/tree/master/js
-      //https://noisehack.com/how-to-build-supersaw-synth-web-audio-api/
-      //http://autotelicum.github.io/Smooth-CoffeeScript/interactive/interactive-coffeescript.html#getting-started
-      return ;
+  async playMain(MSPerNote){
+      await this.playBasicHexNote([0x1e,0x2e,0x3e,0x4f,0x5c,0x6c,0x1f],MSPerNote)
+      //await this.playBasicHexNote([0xa,0xb,0xc,0xd,0xc,0xb,0xa],MSPerNote)
+     
+     //chromatic scale
+     //await this.playChromaticScale(MSPerNote);
+
    } 
+   async playChromaticScale(MSPerNote){
+     for(let keyNumber = 22; keyNumber < 60 ; keyNumber+=1){
+        await this.playNote(keyNumber,MSPerNote, true);
+        console.log("playing note")
+       }
+    
+      return ;
+   }
    async playBasicHexNote(hexArray,MSPerNote){
     if( typeof hexArray === 'string' ){
        hexArray.split(' ').forEach((item)=>{ item});
     }
     for(let i = 0; i < hexArray.length ; i++){
-      await this.sleep(MSPerNote); 
+      //await this.sleep(MSPerNote); 
       var hexNumber = hexArray[i]; 
       var keyNumber = this.noteNameToKeyNumber(this.basicHexToChar(hexNumber),2,0,0)
-      this.playNote(keyNumber,MSPerNote, true);
+      var beatToMS  = this.beatToMS(this.basicHexToBeat(hexNumber),120)
+      console.log("beatToMS is:"+ beatToMS);
+      await this.playNote(keyNumber,beatToMS, true);
        console.log("playing note")
      
        
      }
    }
+    beatToMS(beat, bpm){
+      return beat/bpm*4*60*1000 // 1000 ms
+      
+    }
+    basicHexToBeat(hexNumber){
+      var mask = 0xF0;
+      var beat = (hexNumber & mask)>>0x4
+      var denominator = beat ;
+      var flag = hexNumber & 0xF00;
+     
+      var numBeat = 1/Math.pow(2,denominator); // not in spec, if 0 , do default
+      console.log("basicHexToBeat numBeat is:"+ numBeat);
+      var result = numBeat;
+      switch(flag){
+        case 0x0:
+           return result;
+        case 0x1:
+          result = numBeat + numBeat/2
+          break;
+        case 0x2: 
+          result = numBeat *2 // not in spec , placeholder
+        case 0x3:
+          result = numBeat * 3 // not in spec
+      }
+      return result;
+    }
+   
    async playNote(keyNumber, lengthinMS, hardStop){
+     
       var noteValue = this.keyNumberToFrequency(keyNumber);
       console.log(noteValue);
-      var volumeValue = 50;
-      
-      var context = myAudioContext
+      var context = myAudioContext;
       
       gainNode = myAudioContext.createGain();
-      //oscillator = myAudioContext.createOscillator();
-      
-      //gainNode.connect(myAudioContext.destination);
-     
+
       oscillator = context.createOscillator();
       oscillator.frequency.value = noteValue;
       oscillator.connect(gainNode);
       gainNode.connect(context.destination);
       oscillator.connect(context.destination);
       var currentTime = context.currentTime;
-      //gainNode.gain.value = 40;
+      gainNode.gain.value = 40;
       oscillator.start(currentTime);
-      oscillator.stop(currentTime + (lengthinMS/1000) );
+      console.log("length in ms /1000:" + lengthinMS/1000.0);
+      console.log("currentTime" + currentTime);
+      oscillator.stop(currentTime + lengthinMS/1000.0 );
       
-     
-      //gainNode.gain.value = 0;
-     // await this.sleep(25);
-     
-      //this.playSoundMs(lengthinMS);
-     // var stopper = this.stopSound;
-      //var wait = new Promise(resolve => {
-       // setTimeout(() => {
-        //  console.log("in timeout")
-        //  if(hardStop){  
-        ///    stopper();
-         // }
-        //  else{
-        //    gainNode.gain.value = 0;
-         // }
-         // return;
-       // }, lengthinMS);
-     // });
-  
       var frequency =  Math.floor(noteValue*100)/100;
       frequencyLabel.innerHTML = frequency + ' Hz';
       volumeLabel.innerHTML = this.frequencyToNoteName(frequency, false);
-      
+      return  this.sleep(lengthinMS);;
     }
   
 frequencyToNoteName(input, hasCents){
@@ -500,6 +439,6 @@ frequencyToNoteName(input, hasCents){
   // if(document.readyState === "complete"){
   //   var synthPad = new SynthPad();
   // }
-  window.onload=()=>{var synthPad = new SynthPad();}
+
   var synthPad = new SynthPad();
   
