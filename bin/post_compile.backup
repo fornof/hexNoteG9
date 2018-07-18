@@ -1,4 +1,0 @@
-#!/usr/bin/env bash 
-echo "hi from post_compile!"
-cd ../public/
-python -m http.server 8000
