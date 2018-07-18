@@ -1,4 +1,5 @@
 #!/usr/bin/env bash 
 echo "hi from post_compile!"
 cd ../public/
-python -m http.server $PORT 
+#nohup python -m http.server $PORT 
+exit 0

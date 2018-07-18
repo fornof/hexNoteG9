@@ -1,1 +1,1 @@
-web: python -m http.server $PORT  
+web: nohup python -m http.server $PORT  
