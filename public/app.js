@@ -11,22 +11,7 @@ var playedOnce = false;
 class SynthPad {
   
   constructor() {
-   
-  
-        // Notes
-        this.lowNote = 261.63; // C4
-        this.highNote = 493.88; // B4
-    console.log(document)
-    //frequencyLabel = document.getElementById('frequency');
-    //myCanvas = document.getElementById('synth-pad');
-
-  
-    // Create an audio context.
-   
-    this.setupEventListeners();
-  
-  
-
+    this.setupEventListeners();    
   };
     // Variables
    
@@ -46,7 +31,7 @@ class SynthPad {
         event.preventDefault();
       }, false);
     
-      myCanvas.addEventListener('mousedown', this.playChromaticScale(400));
+      myCanvas.addEventListener('mousedown', this.playChromaticScale(100));
       myCanvas.addEventListener('touchstart', this.playSound);
     
      // myCanvas.addEventListener('mouseup', this.stopSound);
@@ -58,36 +43,8 @@ class SynthPad {
     // Play a note.
 
 async playSoundMs (ms){
-    
-      //this.updateFrequency(event);
-      //oscillator = myAudioContext.createOscillator();
-      oscillator.type = 'sine';
-      //gainNode = myAudioContext.createGain();
-      //oscillator = myAudioContext.createOscillator();
-      
-      //gainNode.connect(myAudioContext.destination);
-     // oscillator.connect(gainNode);
-     // if(!playedOnce){
-      //  oscillator.start();
-      //  playedOnce = true;
-     // }
-     //this.stopSound(300)
-     
-     
-      
-     
-      //oscillators.push(oscillator);
-       //console.log("Played sound once... trying to connect");
-       // gainNode.connect(myAudioContext.destination);
-       // oscillator.connect(gainNode);
-       //console.log("Played sound once... trying to connectssss");
-       //myCanvas.addEventListener('mousemove', this.updateFrequency);
-       //myCanvas.addEventListener('touchmove', this.updateFrequency);
-   //}
-    
-     
-    
-      //myCanvas.addEventListener('mouseout', this.stopSound);
+      oscillator.type = 'triangle';
+ 
     };
     
     
@@ -112,14 +69,15 @@ async playSoundMs (ms){
   }
     
   async playChromaticScale(MSPerNote){
-      
+      //this.playScale()
      //this.playBasicHexNote([0xa,0xb,0xc,0xd,0xc,0xb,0xa],MSPerNote)
-       for(let keyNumber = 22; keyNumber < 60 ; keyNumber+=1){
-        this.playNote(keyNumber,MSPerNote, true);
-        console.log("playing note")
-        await this.sleep(MSPerNote);  
+       this. playScale(44,true, false, true, MSPerNote);
+       //for(let keyNumber = 22; keyNumber < 60 ; keyNumber+=1){
+        //this.playNote(keyNumber,MSPerNote, true);
+        //console.log("playing note")
+        //await this.sleep(MSPerNote);  
         //this.stopSound(300);
-       }
+      // }
        //this.stopSound(300);
       //http://arcturo.github.io/library/coffeescript/01_introduction.html
       //https://github.com/zacharydenton/scissor/tree/master/js
@@ -159,9 +117,11 @@ async playSoundMs (ms){
       gainNode.connect(context.destination);
       oscillator.connect(context.destination);
       var currentTime = context.currentTime;
-      //gainNode.gain.value = 40;
+      gainNode.gain.value = 0;
       oscillator.start(currentTime);
-      oscillator.stop(currentTime + (lengthinMS/1000) );
+      gainNode.gain.setTargetAtTime(40, currentTime, 0.015);
+      gainNode.gain.setTargetAtTime(0, currentTime+ (lengthinMS/1000), 0.015);
+      oscillator.stop(currentTime + (lengthinMS/1000) +.1 );
       
      
       //gainNode.gain.value = 0;
@@ -330,8 +290,22 @@ frequencyToNoteName(input, hasCents){
     
   }
 
-   playScale(scaleNoteToStartOn, isGoingUp, isGoingDown , isMajor){
-
+   async playScale(scaleNoteToStartOn, isGoingUp, isGoingDown , isMinor, MSPerNote){
+      var whole = 2;
+      var half = 1; 
+      var scale = [whole, whole, half, whole, whole, whole, half];
+      var minor = [whole, half, whole, whole, half , whole, whole];
+      var currentSum = 0;
+      if(isMinor){
+        scale = minor;
+      }
+      for(let i = 0 ; i <= scale.length*2; i++){
+        
+        this.playNote(scaleNoteToStartOn + currentSum, MSPerNote);
+        await this.sleep(MSPerNote);
+        currentSum += scale[i%scale.length]
+      }
+      
    } 
    //convert note to sharps
 
