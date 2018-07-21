@@ -43,7 +43,7 @@ class SynthPad {
   }
     
   async playMain(MSPerNote){
-      await this.playBasicHexNote([0x1e,0x2e,0x3e,0x4f,0x5c,0x6c,0x1f],MSPerNote)
+      await this.playBasicHexNote([0x2c,0x12e,0x2c,0x12e,0x2c,0x12c,0x2c],MSPerNote)
       //await this.playBasicHexNote([0xa,0xb,0xc,0xd,0xc,0xb,0xa],MSPerNote)
      
      //chromatic scale
@@ -82,10 +82,10 @@ class SynthPad {
       var mask = 0xF0;
       var beat = (hexNumber & mask)>>0x4
       var denominator = beat ;
-      var flag = hexNumber & 0xF00;
+      var flag =( hexNumber & 0xF00)>>8; // 4 bits is 1 place, 8 bits is 2 places
      
       var numBeat = 1/Math.pow(2,denominator); // not in spec, if 0 , do default
-      console.log("basicHexToBeat numBeat is:"+ numBeat);
+      console.log("basicHexToBeat flag is:"+ flag);
       var result = numBeat;
       switch(flag){
         case 0x0:
@@ -117,8 +117,6 @@ class SynthPad {
       var currentTime = context.currentTime;
       gainNode.gain.value = 40;
       oscillator.start(currentTime);
-      console.log("length in ms /1000:" + lengthinMS/1000.0);
-      console.log("currentTime" + currentTime);
       oscillator.stop(currentTime + lengthinMS/1000.0 );
       
       var frequency =  Math.floor(noteValue*100)/100;
@@ -419,15 +417,7 @@ frequencyToNoteName(input, hasCents){
  
     
     
-    // Update the note frequency.
-    updateFrequency (event) {
-      if (event.type == 'mousedown' || event.type == 'mousemove') {
-        //this.calculateFrequency(event.x, event.y);
-      } else if (event.type == 'touchstart' || event.type == 'touchmove') {
-        var touch = event.touches[0];
-        //this.calculateFrequency(touch.pageX, touch.pageY);
-      }
-    };
+
     
     
     // Export this.
