@@ -12,25 +12,32 @@ var gainVolume = 60;
 class SynthPad {
   
   constructor() {
-   
-  
-   this.setupEventListeners();
-  
-   myCanvas.addEventListener('mousedown', this.playMain(400));
-
+    this.setupEventListeners();    
   };
 
     // Event Listeners
      setupEventListeners() {
     
       // Disables scrolling on touch devices.
-      // document.body.addEventListener('touchmove', function(event) {
-      //   event.preventDefault();
-      // }, false);
+
+      document.body.addEventListener('touchmove', function(event) {
+        event.preventDefault();
+      }, false);
     
-     
-     
+      myCanvas.addEventListener('mousedown', this.playChromaticScale(100));
+      myCanvas.addEventListener('touchstart', this.playSound);
     
+     // myCanvas.addEventListener('mouseup', this.stopSound);
+      //document.addEventListener('mouseleave', this.stopSound);
+      //myCanvas.addEventListener('touchend', this.stopSound);
+    
+    
+     }
+    // Play a note.
+
+async playSoundMs (ms){
+      oscillator.type = 'triangle';
+ 
     };
     
     
@@ -50,12 +57,23 @@ class SynthPad {
      //await this.playChromaticScale(MSPerNote);
 
    } 
-   async playChromaticScale(MSPerNote){
-     for(let keyNumber = 22; keyNumber < 60 ; keyNumber+=1){
-        await this.playNote(keyNumber,MSPerNote, true);
-        console.log("playing note")
-       }
+
     
+  async playChromaticScale(MSPerNote){
+      //this.playScale()
+     //this.playBasicHexNote([0xa,0xb,0xc,0xd,0xc,0xb,0xa],MSPerNote)
+       this. playScale(44,true, false, true, MSPerNote);
+       //for(let keyNumber = 22; keyNumber < 60 ; keyNumber+=1){
+        //this.playNote(keyNumber,MSPerNote, true);
+        //console.log("playing note")
+        //await this.sleep(MSPerNote);  
+        //this.stopSound(300);
+      // }
+       //this.stopSound(300);
+      //http://arcturo.github.io/library/coffeescript/01_introduction.html
+      //https://github.com/zacharydenton/scissor/tree/master/js
+      //https://noisehack.com/how-to-build-supersaw-synth-web-audio-api/
+      //http://autotelicum.github.io/Smooth-CoffeeScript/interactive/interactive-coffeescript.html#getting-started
       return ;
    }
    async playBasicHexNote(hexArray,MSPerNote){
@@ -115,14 +133,18 @@ class SynthPad {
       gainNode.connect(context.destination);
       oscillator.connect(context.destination);
       var currentTime = context.currentTime;
-      gainNode.gain.value = 40;
+
+      gainNode.gain.value = 0;
       oscillator.start(currentTime);
-      oscillator.stop(currentTime + lengthinMS/1000.0 );
+      gainNode.gain.setTargetAtTime(40, currentTime, 0.015);
+      gainNode.gain.setTargetAtTime(0, currentTime+ (lengthinMS/1000), 0.015);
+      oscillator.stop(currentTime + (lengthinMS/1000) +.1 );
+
       
       var frequency =  Math.floor(noteValue*100)/100;
       frequencyLabel.innerHTML = frequency + ' Hz';
       volumeLabel.innerHTML = this.frequencyToNoteName(frequency, false);
-      return  this.sleep(lengthinMS);;
+      return  this.sleep(lengthinMS);
     }
   
 frequencyToNoteName(input, hasCents){
@@ -267,8 +289,22 @@ frequencyToNoteName(input, hasCents){
     
   }
 
-   playScale(scaleNoteToStartOn, isGoingUp, isGoingDown , isMajor){
-
+   async playScale(scaleNoteToStartOn, isGoingUp, isGoingDown , isMinor, MSPerNote){
+      var whole = 2;
+      var half = 1; 
+      var scale = [whole, whole, half, whole, whole, whole, half];
+      var minor = [whole, half, whole, whole, half , whole, whole];
+      var currentSum = 0;
+      if(isMinor){
+        scale = minor;
+      }
+      for(let i = 0 ; i <= scale.length*2; i++){
+        
+        this.playNote(scaleNoteToStartOn + currentSum, MSPerNote);
+        await this.sleep(MSPerNote);
+        currentSum += scale[i%scale.length]
+      }
+      
    } 
    //convert note to sharps
 
