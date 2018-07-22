@@ -7,6 +7,8 @@ var myAudioContext = new window.AudioContext();
 var  oscillator = myAudioContext.createOscillator();
 var gainNode = myAudioContext.createGain();
 var hexInput = document.getElementyById('hexInput');
+// test stuff
+var test = []
 var oscillators = [];
 var playedOnce = false;
 class SynthPad {
