@@ -2,6 +2,7 @@
 var myCanvas = document.getElementById("synth-pad");
 var frequencyLabel  = document.getElementById('frequency');
 var volumeLabel = document.getElementById('volume');
+var hexInput = document.getElementyById('hexInput');
  window.AudioContext = window.AudioContext || window.webkitAudioContext;
 var myAudioContext = new window.AudioContext();
 var  oscillator = myAudioContext.createOscillator();
@@ -31,7 +32,7 @@ class SynthPad {
         event.preventDefault();
       }, false);
     
-      myCanvas.addEventListener('mousedown', this.playChromaticScale(100));
+      myCanvas.addEventListener('mousedown', this.playMain());
       myCanvas.addEventListener('touchstart', this.playSound);
     
      // myCanvas.addEventListener('mouseup', this.stopSound);
@@ -67,17 +68,30 @@ async playSoundMs (ms){
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
+  async submitHex(){
+    console.log(hexInput.getInnerText())
+    var stringArray = hexInput.getInnerText().split(" ");
+    stringArray.forEach(data=>{ data =this.basicStringToHex(data)})
+    playBasicHexNote(stringArray, 500);
+
+  }
+  async playMain(){
+    
+
+  }
     
   async playChromaticScale(MSPerNote){
       //this.playScale()
+      console.log("playing in chromatic scale")
      //this.playBasicHexNote([0xa,0xb,0xc,0xd,0xc,0xb,0xa],MSPerNote)
-       this. playScale(44,true, false, true, MSPerNote);
-       //for(let keyNumber = 22; keyNumber < 60 ; keyNumber+=1){
-        //this.playNote(keyNumber,MSPerNote, true);
-        //console.log("playing note")
-        //await this.sleep(MSPerNote);  
+       //var thekey= this.noteNameToKeyNumber("f","3", 0, 0);
+       //this. playScale(thekey,true, false, false, MSPerNote);
+       for(let keyNumber = 22; keyNumber < 60 ; keyNumber+=1){
+        this.playNote(keyNumber,MSPerNote, true);
+        console.log("playing note")
+        await this.sleep(MSPerNote);  
         //this.stopSound(300);
-      // }
+      }
        //this.stopSound(300);
       //http://arcturo.github.io/library/coffeescript/01_introduction.html
       //https://github.com/zacharydenton/scissor/tree/master/js
@@ -87,7 +101,7 @@ async playSoundMs (ms){
    } 
    async playBasicHexNote(hexArray,MSPerNote){
     if( typeof hexArray === 'string' ){
-       hexArray.split(' ').forEach((item)=>{ item});
+       hexArray.split(' ').forEach(data =>{data =this.basicStringToHex(data)});
     }
     for(let i = 0; i < hexArray.length ; i++){
       await this.sleep(MSPerNote); 
@@ -257,6 +271,7 @@ frequencyToNoteName(input, hasCents){
     }
     return lastDigit.toString(16);
   }
+
   basicStringToHex(String){
     var hex = [];
     var result = 0;
@@ -268,6 +283,8 @@ frequencyToNoteName(input, hasCents){
     }
     hex.forEach((data)=>{console.log(data.toString(16))})
     console.log(result.toString(16));
+    return result;
+
   }
   padZeroes(number){
     var zeroes ="";
@@ -290,17 +307,17 @@ frequencyToNoteName(input, hasCents){
     
   }
 
-  playInKey(keyLetter, key, isMajor){
+  getKeyLetterSharpOrFlat(keyLetter, key){
       // take note, compare it to key, if needed, go up a step or down a step. 
     // C, 
     var letterToIndex = new Map();
-    letterToIndex.set("F",1000000); //bit masks
-    letterToIndex.set("C",0100000);
-    letterToIndex.set("G",0010000);
-    letterToIndex.set("D",0001000);
-    letterToIndex.set("A",0000100);
-    letterToIndex.set("E",0000010);
-    letterToIndex.set("B",0000001);
+    letterToIndex.set("F",0b1000000); //bit masks
+    letterToIndex.set("C",0b0100000);
+    letterToIndex.set("G",0b0010000);
+    letterToIndex.set("D",0b0001000);
+    letterToIndex.set("A",0b0000100);
+    letterToIndex.set("E",0b0000010);
+    letterToIndex.set("B",0b0000001);
    
     var keys = new Map();
     // major is capitalized, 
@@ -313,7 +330,12 @@ frequencyToNoteName(input, hasCents){
     keys.set("B",0b1111100);
     keys.set("F#",0b1111110);
     keys.set("C#",  0b1111111);
-    // todo minor keys.
+
+    if (keys.get(key) & letterToIndex.get(keyLetter) > 1){
+      return 1;
+    }
+    return 0;
+    // todo minor keys
     
   }
    async playScale(scaleNoteToStartOn, isGoingUp, isGoingDown , isMinor, MSPerNote){
@@ -380,7 +402,8 @@ frequencyToNoteName(input, hasCents){
    }
    noteNameToKeyNumber(note,octave, sharps, flats){
       var numNote = 0; 
-  
+      // case if octave < 2 
+      // case if octave > 7 
       switch(note.toLowerCase() ){
          case 'a':
             numNote = 1;
