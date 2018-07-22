@@ -70,8 +70,13 @@ async playSoundMs (ms){
   }
   async submitHex(){
     console.log(hexInput.getInnerText())
+<<<<<<< HEAD
    // var stringArray = hexInput.getInnerText().split(" ");
    // stringArray.forEach(data=>{ data =this.basicStringToHex(data)})
+=======
+    var stringArray = hexInput.getInnerText().split(" ");
+    stringArray.forEach(data=>{ data =this.basicStringToHex(data)})
+>>>>>>> 0df262a... modified input
     playBasicHexNote(stringArray, 500);
 
   }
