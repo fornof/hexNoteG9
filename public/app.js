@@ -6,6 +6,7 @@ var volumeLabel = document.getElementById('volume');
 var myAudioContext = new window.AudioContext();
 var  oscillator = myAudioContext.createOscillator();
 var gainNode = myAudioContext.createGain();
+var hexInput = document.getElementyById('hexInput');
 var oscillators = [];
 var playedOnce = false;
 class SynthPad {
@@ -117,20 +118,61 @@ class SynthPad {
    
       return ;
    } 
+   async submitHex(){
+    console.log(hexInput.getInnerText())
+    var stringArray = hexInput.getInnerText().split(" ");
+    stringArray.forEach(data=>{ data =this.basicStringToHex(data)})
+    playBasicHexNote(stringArray, 500);
+
+  }
+  async playMain(){
+    
+
+  }
    async playBasicHexNote(hexArray,MSPerNote){
     if( typeof hexArray === 'string' ){
-       hexArray.split(' ').forEach((item)=>{ item});
+       hexArray.split(' ').forEach((item)=>{ item = basicStringToHex(item)});
     }
     for(let i = 0; i < hexArray.length ; i++){
-      await this.sleep(MSPerNote); 
+      //await this.sleep(MSPerNote); 
       var hexNumber = hexArray[i]; 
       var keyNumber = this.noteNameToKeyNumber(this.basicHexToChar(hexNumber),2,0,0)
-      this.playNote(keyNumber,MSPerNote, false);
+      var beatToMS  = this.beatToMS(this.basicHexToBeat(hexNumber),120)
+      console.log("beatToMS is:"+ beatToMS);
+      await this.playNote(keyNumber,beatToMS, true);
        console.log("playing note")
      
        
      }
    }
+
+    beatToMS(beat, bpm){
+      return beat/bpm*4*60*1000 // 1000 ms
+      
+    }
+    basicHexToBeat(hexNumber){
+      var mask = 0xF0;
+      var beat = (hexNumber & mask)>>0x4
+      var denominator = beat ;
+      var flag =( hexNumber & 0xF00)>>8; // 4 bits is 1 place, 8 bits is 2 places
+     
+      var numBeat = 1/Math.pow(2,denominator); // not in spec, if 0 , do default
+      console.log("basicHexToBeat flag is:"+ flag);
+      var result = numBeat;
+      switch(flag){
+        case 0x0:
+           return result;
+        case 0x1:
+          result = numBeat + numBeat/2
+          break;
+        case 0x2: 
+          result = numBeat *2 // not in spec , placeholder
+        case 0x3:
+          result = numBeat * 3 // not in spec
+      }
+      return result;
+    }
+
    playNote(keyNumber, lengthinMS, hardStop){
       var noteValue = this.keyNumberToFrequency(keyNumber);
       console.log(noteValue);
@@ -267,6 +309,7 @@ frequencyToNoteName(input, hasCents){
     }
     return lastDigit.toString(16);
   }
+
   basicStringToHex(String){
     var hex = [];
     var result = 0;
@@ -278,7 +321,9 @@ frequencyToNoteName(input, hasCents){
     }
     hex.forEach((data)=>{console.log(data.toString(16))})
     console.log(result.toString(16));
+    return result;
   }
+
   padZeroes(number){
     var zeroes ="";
     for(let i = 1 ; i < number; i++){
