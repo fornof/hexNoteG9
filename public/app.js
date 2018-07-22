@@ -2,6 +2,7 @@
 var myCanvas = document.getElementById("synth-pad");
 var frequencyLabel  = document.getElementById('frequency');
 var volumeLabel = document.getElementById('volume');
+var hexInput = document.getElementyById('hexInput');
  window.AudioContext = window.AudioContext || window.webkitAudioContext;
 var myAudioContext = new window.AudioContext();
 var  oscillator = myAudioContext.createOscillator();
@@ -14,22 +15,7 @@ var playedOnce = false;
 class SynthPad {
   
   constructor() {
-   
-  
-        // Notes
-        this.lowNote = 261.63; // C4
-        this.highNote = 493.88; // B4
-    console.log(document)
-    //frequencyLabel = document.getElementById('frequency');
-    //myCanvas = document.getElementById('synth-pad');
-
-  
-    // Create an audio context.
-   
-    this.setupEventListeners();
-  
-  
-
+    this.setupEventListeners();    
   };
     // Variables
    
@@ -49,75 +35,71 @@ class SynthPad {
         event.preventDefault();
       }, false);
     
-      myCanvas.addEventListener('mousedown', this.playChromaticScale(300));
+      myCanvas.addEventListener('mousedown', this.playMain());
       myCanvas.addEventListener('touchstart', this.playSound);
     
-      myCanvas.addEventListener('mouseup', this.stopSound);
-      document.addEventListener('mouseleave', this.stopSound);
-      myCanvas.addEventListener('touchend', this.stopSound);
+     // myCanvas.addEventListener('mouseup', this.stopSound);
+      //document.addEventListener('mouseleave', this.stopSound);
+      //myCanvas.addEventListener('touchend', this.stopSound);
     };
     
     
     // Play a note.
-    playSound (){
-    
-      //this.updateFrequency(event);
-      oscillator.type = 'triangle';
-      //gainNode = myAudioContext.createGain();
-      //oscillator = myAudioContext.createOscillator();
-      gainNode.connect(myAudioContext.destination);
-      oscillator.connect(gainNode);
-      if(!playedOnce){
-        oscillator.start(0);
-        playedOnce = true;
-      }
-     
-      //oscillators.push(oscillator);
-       //console.log("Played sound once... trying to connect");
-       // gainNode.connect(myAudioContext.destination);
-       // oscillator.connect(gainNode);
-       //console.log("Played sound once... trying to connectssss");
-       myCanvas.addEventListener('mousemove', this.updateFrequency);
-       myCanvas.addEventListener('touchmove', this.updateFrequency);
-   //}
-    
-     
-    
-      //myCanvas.addEventListener('mouseout', this.stopSound);
-    };
 
+async playSoundMs (ms){
+      oscillator.type = 'triangle';
+ 
+    };
     
     
     // Stop the audio.
-   stopSound () {
+  async stopSound (t1) {
       //oscillator.stop(0);
      
       try{
-      gainNode.disconnect(myAudioContext.destination)
-      oscillator.disconnect(gainNode);
-      myCanvas.removeEventListener('mousemove', this.updateFrequency);
-      myCanvas.removeEventListener('touchmove', this.updateFrequency);
+      
+      //gainNode.disconnect(myAudioContext.destination)
+      //oscillator.disconnect(gainNode);
+      // oscillator.stop(myAudioContext.currentTime+t1);
       }catch(error){
         console.log("could not disconnect");
       }
      
-      //myCanvas.removeEventListener('mouseout', this.stopSound);
-    };
-     sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-   async playChromaticScale(MSPerNote){
-      
-     this.playBasicHexNote([0xa,0xb,0xc,0xd,0xc,0xb,0xa],MSPerNote)
-      // for(let keyNumber = 33; keyNumber < 77 ; keyNumber++){
-      //  await this.sleep(MSPerNote);  
-      //  this.playNote(keyNumber,MSPerNote, false);
-      //   console.log("playing note")
-      
-        
-      // }
-      
-   
+      myCanvas.removeEventListener('mouseout', this.stopSound);
+  };
+     
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  async submitHex(){
+    console.log(hexInput.getInnerText())
+    var stringArray = hexInput.getInnerText().split(" ");
+    stringArray.forEach(data=>{ data =this.basicStringToHex(data)})
+    playBasicHexNote(stringArray, 500);
+
+  }
+  async playMain(){
+    
+
+  }
+    
+  async playChromaticScale(MSPerNote){
+      //this.playScale()
+      console.log("playing in chromatic scale")
+     //this.playBasicHexNote([0xa,0xb,0xc,0xd,0xc,0xb,0xa],MSPerNote)
+       //var thekey= this.noteNameToKeyNumber("f","3", 0, 0);
+       //this. playScale(thekey,true, false, false, MSPerNote);
+       for(let keyNumber = 22; keyNumber < 60 ; keyNumber+=1){
+        this.playNote(keyNumber,MSPerNote, true);
+        console.log("playing note")
+        await this.sleep(MSPerNote);  
+        //this.stopSound(300);
+      }
+       //this.stopSound(300);
+      //http://arcturo.github.io/library/coffeescript/01_introduction.html
+      //https://github.com/zacharydenton/scissor/tree/master/js
+      //https://noisehack.com/how-to-build-supersaw-synth-web-audio-api/
+      //http://autotelicum.github.io/Smooth-CoffeeScript/interactive/interactive-coffeescript.html#getting-started
       return ;
    } 
    async submitHex(){
@@ -133,7 +115,7 @@ class SynthPad {
   }
    async playBasicHexNote(hexArray,MSPerNote){
     if( typeof hexArray === 'string' ){
-       hexArray.split(' ').forEach((item)=>{ item = basicStringToHex(item)});
+       hexArray.split(' ').forEach(data =>{data =this.basicStringToHex(data)});
     }
     for(let i = 0; i < hexArray.length ; i++){
       //await this.sleep(MSPerNote); 
@@ -179,27 +161,49 @@ class SynthPad {
       var noteValue = this.keyNumberToFrequency(keyNumber);
       console.log(noteValue);
       var volumeValue = 50;
+      
+      var context = myAudioContext
+      
+      gainNode = myAudioContext.createGain();
+      //oscillator = myAudioContext.createOscillator();
+      
+      //gainNode.connect(myAudioContext.destination);
+     
+      oscillator = context.createOscillator();
       oscillator.frequency.value = noteValue;
-      gainNode.gain.value = 50;
-      this.playSound();
-      var stopper = this.stopSound;
-      var wait = new Promise(resolve => {
-        setTimeout(() => {
-          console.log("in timeout")
-          if(hardStop){  
-            stopper();
-          }
-          else{
-            gainNode.gain.value = 0;
-          }
-          return;
-        }, lengthinMS);
-      });
+      oscillator.connect(gainNode);
+      gainNode.connect(context.destination);
+      oscillator.connect(context.destination);
+      var currentTime = context.currentTime;
+      gainNode.gain.value = 0;
+      oscillator.start(currentTime);
+      gainNode.gain.setTargetAtTime(40, currentTime, 0.015);
+      gainNode.gain.setTargetAtTime(0, currentTime+ (lengthinMS/1000), 0.015);
+      oscillator.stop(currentTime + (lengthinMS/1000) +.1 );
+      
+     
+      //gainNode.gain.value = 0;
+     // await this.sleep(25);
+     
+      //this.playSoundMs(lengthinMS);
+     // var stopper = this.stopSound;
+      //var wait = new Promise(resolve => {
+       // setTimeout(() => {
+        //  console.log("in timeout")
+        //  if(hardStop){  
+        ///    stopper();
+         // }
+        //  else{
+        //    gainNode.gain.value = 0;
+         // }
+         // return;
+       // }, lengthinMS);
+     // });
   
       var frequency =  Math.floor(noteValue*100)/100;
       frequencyLabel.innerHTML = frequency + ' Hz';
       volumeLabel.innerHTML = this.frequencyToNoteName(frequency, false);
-      return wait;
+      
     }
   
 frequencyToNoteName(input, hasCents){
@@ -324,6 +328,7 @@ frequencyToNoteName(input, hasCents){
     hex.forEach((data)=>{console.log(data.toString(16))})
     console.log(result.toString(16));
     return result;
+
   }
 
   padZeroes(number){
@@ -347,8 +352,53 @@ frequencyToNoteName(input, hasCents){
     
   }
 
-   playScale(scaleNoteToStartOn, isGoingUp, isGoingDown , isMajor){
+  getKeyLetterSharpOrFlat(keyLetter, key){
+      // take note, compare it to key, if needed, go up a step or down a step. 
+    // C, 
+    var letterToIndex = new Map();
+    letterToIndex.set("F",0b1000000); //bit masks
+    letterToIndex.set("C",0b0100000);
+    letterToIndex.set("G",0b0010000);
+    letterToIndex.set("D",0b0001000);
+    letterToIndex.set("A",0b0000100);
+    letterToIndex.set("E",0b0000010);
+    letterToIndex.set("B",0b0000001);
+   
+    var keys = new Map();
+    // major is capitalized, 
+    //minor is not capitalized.
+    keys.set("C",0b0000000);
+    keys.set("G",0b1000000);
+    keys.set("D",0b1100000);
+    keys.set("A",0b1110000);
+    keys.set("E",0b1111000);
+    keys.set("B",0b1111100);
+    keys.set("F#",0b1111110);
+    keys.set("C#",  0b1111111);
 
+    if (keys.get(key) & letterToIndex.get(keyLetter) > 1){
+      return 1;
+    }
+    return 0;
+    // todo minor keys
+    
+  }
+   async playScale(scaleNoteToStartOn, isGoingUp, isGoingDown , isMinor, MSPerNote){
+      var whole = 2;
+      var half = 1; 
+      var scale = [whole, whole, half, whole, whole, whole, half];
+      var minor = [whole, half, whole, whole, half , whole, whole];
+      var currentSum = 0;
+      if(isMinor){
+        scale = minor;
+      }
+      for(let i = 0 ; i <= scale.length*2; i++){
+        
+        this.playNote(scaleNoteToStartOn + currentSum, MSPerNote);
+        await this.sleep(MSPerNote);
+        currentSum += scale[i%scale.length]
+      }
+      
    } 
    //convert note to sharps
 
@@ -356,8 +406,8 @@ frequencyToNoteName(input, hasCents){
     var sharps = 0;
     var flats = 0 ;
     var octave = 0;
-    var myNote = ''
-    var char = ''
+    var myNote = '';
+    var char = '';
     for(let i =0 ; i < note.length; i++){
       char = note[i];
       if(char == '#'){
@@ -379,7 +429,7 @@ frequencyToNoteName(input, hasCents){
 
     }
     console.log(myNote +":"+ octave+","+ sharps+","+ flats);
-    return this.noteNameToKeyNumber(myNote,octave,sharps,flats)
+    return this.noteNameToKeyNumber(myNote,octave,sharps,flats);
 
    }
    isNote(note){
@@ -397,7 +447,8 @@ frequencyToNoteName(input, hasCents){
    }
    noteNameToKeyNumber(note,octave, sharps, flats){
       var numNote = 0; 
-  
+      // case if octave < 2 
+      // case if octave > 7 
       switch(note.toLowerCase() ){
          case 'a':
             numNote = 1;

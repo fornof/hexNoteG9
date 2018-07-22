@@ -2,7 +2,7 @@
 This is a format for music notation in hex.
 
 |	HEX	|	Key for HexNote Values 	|
-| ------------- | ------------- |
+|------|---------------------- |
 |	0	|	Comment/Goto 	|
 |	1	|	Sharp/Flat	|
 |	2	|	Dynamics 	|
@@ -21,27 +21,27 @@ This is a format for music notation in hex.
 |	f	|	Note F	|
 
 |beat on a	|	Value for beat 	| note description|
-| ------------- | ------------- | -----------|
-0a	|	default	|	default beat	|
-1a	|	1/(2^1) = 1/2	|	half	|
-2a	|	1/(2^2) = 1/4	|	quarter	|
-3a	|	1/(2^3) = 1/8	|	eighth	|
-4a	|	1/(2^4) = 1/16	|	sixteenth	|
-5a	|	1/(2^5) = 1/32	|	thirty-second	|
-6a	|	1/(2^6) = 1/64	|	sixty-fourth	|
-7a	|	1/(2^7) = 1/128	|	one-twenty-eigth	|
-8a	|	1/(2^8)=1/512	|	five-twelfth	|
-9a	|		|	 1/12 triplet note	|
-aa	|		|	 whole note	|
-ba	|		|	 2 whole notes	|
-ca	|		|	default beat (placeholder for later revisions)	|
-da	|		|	default beat (placeholder for later revisions)	|
-ea	|		|	default beat (placeholder for later revisions)	|
-fa	|		|	default beat (placeholder for later revisions)	|
+|-----------| --------------- | ----------------|
+|0a	|	default	|	default beat	|
+|1a	|	1/(2^1) = 1/2	|	half	|
+|2a	|	1/(2^2) = 1/4	|	quarter	|
+|3a	|	1/(2^3) = 1/8	|	eighth	|
+|4a	|	1/(2^4) = 1/16	|	sixteenth	|
+|5a	|	1/(2^5) = 1/32	|	thirty-second	|
+|6a	|	1/(2^6) = 1/64	|	sixty-fourth	|
+|7a	|	1/(2^7) = 1/128	|	one-twenty-eigth	|
+|8a	|	1/(2^8)=1/512	|	five-twelfth	|
+|9a	|		|	 1/12 triplet note	|
+|aa	|		|	 whole note	|
+|ba	|		|	 2 whole notes	|
+|ca	|		|	default beat (placeholder for later revisions)	|
+|da	|		|	default beat (placeholder for later revisions)	|
+|ea	|		|	default beat (placeholder for later revisions)	|
+|fa	|		|	default beat (placeholder for later revisions)	|
 
 Number (hex) instance | Description | Example Description | Hex mask|
 | ---------| --------| ---------| -------|
-0|Keynotes(00)Comment(10)/GOTOs(20)/Measure Markers(30)  this instance is used to find beginning/ending of sections.|  For keynotes (1-88 notes from the keyboard), you will need to add a 00, so 14FF00 will play a dotted 16th note, keynote 255 %106.  You will also be able to do comments like  " B33F10 "  " ABBA10" , to name sections you could do "AB10" to begin section A and "AE20" to end section A.  Similar to MIPS, these labels are also used for GOTOs, only loop once per call, and ending with "20"  so "AB20" may go to "AB10" once. two times would be "AB20 AB20". This is needed to match sheet music such as D.C. al CAPA. Also Measure Markers (30) are used for placing staves on the staff. FF30 would be measure marker 255 and it would show up as a bar on the staff with 255 above it. |0x0000FF 
+0|Keynotes(40/00)Comment(10)/GOTOs(20)/Measure Markers(30)  this instance is used to find beginning/ending of sections.|  For keynotes (1-88 notes from the keyboard), you will need to call 40 before the section for keynote. To get back to default a-9, call 00. so 40 14FF 00 will play a dotted 16th note, keynote 255 %106.  You will also be able to do comments like  " B33F10 "  " ABBA10" , to name sections you could do "AB10" to begin section A and "AE20" to end section A.  Similar to MIPS, these labels are also used for GOTOs, only loop once per call, and ending with "20"  so "AB20" may go to "AB10" once. two times would be "AB20 AB20". This is needed to match sheet music such as D.C. al CAPA. Also Measure Markers (30) are used for placing staves on the staff. FF30 would be measure marker 255 and it would show up as a bar on the staff with 255 above it. |0x0000FF 
 1|Sharp/Flat/Natural/Step up/down modifier. This instance sets the sharp or step for the next note.|"01C" or 11C " would be C sharp, "21 B" would be B natural " f1 C" would be C flat  See Sharp Step Modifier for more information.|0x000001
 2|Dynamics Modifier. Volume of notes. This instance sets the following notes to mezzo forte. |"102" sets the notes to f (forte), " 2 " sets the following notes to mf . For more information on the range and ways to add crescendos and descendos, see Dynamics Modifier|0x000001
 3|Accents Modifier tied, staccato, largo, slide, tremolo. This instance sets the tied default continue notes count (default 2)|(todo)|0x000001
