@@ -72,8 +72,13 @@ async playSoundMs (ms){
     console.log(hexInput.getInnerText())
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    // var stringArray = hexInput.getInnerText().split(" ");
    // stringArray.forEach(data=>{ data =this.basicStringToHex(data)})
+=======
+    var stringArray = hexInput.getInnerText().split(" ");
+    stringArray.forEach(data=>{ data =this.basicStringToHex(data)})
+>>>>>>> 0df262a... modified input
 =======
     var stringArray = hexInput.getInnerText().split(" ");
     stringArray.forEach(data=>{ data =this.basicStringToHex(data)})
