@@ -70,8 +70,8 @@ async playSoundMs (ms){
   }
   async submitHex(){
     console.log(hexInput.getInnerText())
-    var stringArray = hexInput.getInnerText().split(" ");
-    stringArray.forEach(data=>{ data =this.basicStringToHex(data)})
+   // var stringArray = hexInput.getInnerText().split(" ");
+   // stringArray.forEach(data=>{ data =this.basicStringToHex(data)})
     playBasicHexNote(stringArray, 500);
 
   }
